@@ -30,20 +30,22 @@ function getRandomColor() {
 }
 
 function getEmptyCell() {
-  var emptyCells = []
+    var emptyCells = []
 
-  for (var i = 1; i < gBoard.length - 1; i++) {
-    for (var j = 1; j < gBoard[0].length - 1; j++) {
-      if (gBoard[i][j] === FOOD) {
-        emptyCells.push({ i, j })
-      }
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (!gBoard[i][j].isMine && gBoard[i][j].isCovered) {
+                emptyCells.push({ i, j })
+            }
+        }
     }
-  }
 
-  if (emptyCells.length === 0) return null
-  var randIdx = Math.floor(Math.random() * emptyCells.length)
-  return emptyCells[randIdx]
+    if (emptyCells.length === 0) return null
+    var randIdx = Math.floor(Math.random() * emptyCells.length);
+    return emptyCells[randIdx]
 }
+
+  
 
 // function playEatingSound() {
 //   new Audio("sounds/collectFood.mp3").play()

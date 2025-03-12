@@ -1,6 +1,7 @@
 'use strict'
 
 var gBoard
+var gFirstClick = true
 
 var gLevel = {
     SIZE: 4,
@@ -95,6 +96,11 @@ function onCellClicked(elCell, i, j) {
 
     if(!gGame.isOn) return
 
+    if(gFirstClick){
+        gFirstClick = false
+        addRandomBomb(i, j)
+    }
+
     // if the cell is bomb
     if (cell.isMine){
         console.log('Game over!')
@@ -147,9 +153,31 @@ function expandReveal(board, elCell, i, j) {
     }
     renderBoard(board)
 }
-addRandomBomb()
-function addRandomBomb() {
-    var emptyCell = getEmptyCell()
-    gBoard[emptyCell.i][emptyCell.j].isMine = true
-    renderCell(emptyCell, gBoard[emptyCell.i][emptyCell.j])
+
+function addRandomBomb(firstI, firstJ) {
+    for (var i = 0; i < gLevel.MINES; i++) {
+        var emptyCell = getEmptyCell()
+
+        if (!emptyCell) {
+            console.warn("No empty cells available for bombs!")
+            return
+        }
+
+        while (emptyCell.i === firstI && emptyCell.j === firstJ) {
+            emptyCell = getEmptyCell()
+            if (!emptyCell) return
+        }
+
+        gBoard[emptyCell.i][emptyCell.j].isMine = true
+    }
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (!gBoard[i][j].isMine) {
+                gBoard[i][j].minesAroundCount = setMinesNegsCount(gBoard, i, j)
+            }
+        }
+    }
+
+    renderBoard(gBoard)
 }
