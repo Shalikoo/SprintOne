@@ -4,11 +4,13 @@ var gBoard
 var gFirstClick = true
 var gLives = 3
 
+var savedLevel = localStorage.getItem('gameLevel') || "4"
 
 var gLevel = {
-    SIZE: 4,
-    MINES: 2
-}
+    SIZE: +savedLevel,
+    MINES: savedLevel == 4 ? 2 : savedLevel == 8 ? 14 : 32
+};
+
 
 var gGame = {
     isOn: false,
@@ -17,8 +19,10 @@ var gGame = {
     secsPassed: 0
 }
 
-
 function onInit() {
+    console.log("Loading game with level:", gLevel.SIZE, "and mines:", gLevel.MINES)
+    document.getElementById('game-levels').value = gLevel.SIZE
+
     gBoard = buildBoard()
     renderBoard(gBoard)
 
@@ -29,9 +33,8 @@ function onInit() {
     var elLives = document.querySelector('.game-lives')
     elLives.innerText = '❤️Lives: ' + gLives
 
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
+    document.addEventListener("contextmenu", (event) => event.preventDefault())
 }
-
 
 function buildBoard() {
     const board = []
@@ -59,38 +62,36 @@ function buildBoard() {
 }
 
 function renderBoard(board) {
-    var strHTML = "";
+    var strHTML = ""
 
     for (var i = 0; i < board.length; i++) {
-        strHTML += "<tr>";
+        strHTML += "<tr>"
         for (var j = 0; j < board[0].length; j++) {
-            const cell = board[i][j];
-            const className = getClassName({ i: i, j: j });
-            const classList = `${className} ${cell.isCovered ? '' : 'revealed'} ${cell.isHit ? 'bomb-hit' : ''}`;
+            const cell = board[i][j]
+            const className = getClassName({ i: i, j: j })
+            const classList = `${className} ${cell.isCovered ? '' : 'revealed'} ${cell.isHit ? 'bomb-hit' : ''}`
 
-            // ✅ אם התא פתוח והוא לא מוקש, נוודא ש-0 יוצג כריק ""
-            let cellContent = "";
+            var cellContent = ""
             if (!cell.isCovered) {
                 if (cell.isMine) {
-                    cellContent = "💣";
+                    cellContent = "💣"
                 } else if (cell.minesAroundCount > 0) {
-                    cellContent = cell.minesAroundCount; // הצגת מספר רגיל
+                    cellContent = cell.minesAroundCount
                 } else {
-                    cellContent = ""; // במקרה של 0, משאירים ריק
+                    cellContent = ""
                 }
             }
 
             strHTML += `<td class="${classList}" onclick="onCellClicked(this, ${i}, ${j})" 
                         oncontextmenu="onCellRightClick(event, ${i}, ${j})"
                         data-marked="${cell.isCovered && cell.isMarked ? '🚩' : ''}">
-                ${cellContent}</td>`;
+                ${cellContent}</td>`
         }
-        strHTML += "</tr>";
+        strHTML += "</tr>"
     }
-    const elBoard = document.querySelector(".board");
-    elBoard.innerHTML = strHTML;
+    const elBoard = document.querySelector(".board")
+    elBoard.innerHTML = strHTML
 }
-
 
 function getClassName(location) {
     const cellClass = `cell-${location.i}-${location.j}`
@@ -265,3 +266,17 @@ function onRestart() {
     document.querySelector(".message").style.display = "none"
     updateSmiley('normal')
 }
+
+function gameLevel() {
+    var gameSize = +document.getElementById('game-levels').value
+
+    gLevel.SIZE = gameSize
+    gLevel.MINES = gameSize === 4 ? 2 : gameSize === 8 ? 14 : 32
+
+    localStorage.setItem('gameLevel', gameSize)
+
+    console.log("Level changed to:", gLevel.SIZE, "Mines:", gLevel.MINES)
+    onInit()
+}
+
+
